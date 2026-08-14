@@ -6,6 +6,7 @@ import '@fontsource/golos-text/cyrillic-700.css';
 import '@fontsource/unbounded/cyrillic-500.css';
 import '@fontsource/unbounded/cyrillic-700.css';
 import './styles.css';
+import './author-facts.css';
 import './reviews.css';
 import App from './App.jsx';
 ReactDOM.createRoot(document.getElementById('root')).render(<React.StrictMode><App/></React.StrictMode>);

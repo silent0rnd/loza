@@ -1,0 +1,14 @@
+.facts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.75rem, 2vw, 1.75rem);
+}
+
+.facts div {
+  min-width: 0;
+}
+
+.facts b {
+  font-size: clamp(1rem, 1.55vw, 1.5rem);
+  line-height: 1.2;
+  overflow-wrap: break-word;
+}
