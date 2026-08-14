@@ -17,12 +17,18 @@
 
 .reviews .kicker{font-family:'Unbounded';font-size:clamp(14px,1.25vw,20px);font-weight:600;letter-spacing:-.035em;line-height:1.2;margin-bottom:26px}
 
+.nav-cta{display:inline-flex;justify-content:center;transition:transform .25s}.nav-cta:hover{transform:translateY(-4px) rotate(-1deg)}
+
 .faq .kicker{font-family:'Unbounded';font-size:clamp(14px,1.25vw,20px);font-weight:600;letter-spacing:-.035em;line-height:1.2;margin-bottom:26px}
 
 /* Benefit descriptions use the complete available row width on every screen. */
 .benefit-list article{grid-template-columns:clamp(45px,5.5vw,70px) minmax(0,1fr)}
 .benefit-list article>span{grid-row:span 2}
 .benefit-list p{grid-column:2;max-width:none;margin:clamp(8px,1vw,10px) 0 0}
+
+/* Original hero text ring: the full circle, including its inscription, rotates together. */
+.orbit{right:-5%;top:auto;bottom:3%;padding:22px;border:1px solid #ffffff4d;isolation:auto}.orbit-ring{display:none}.orbit span{position:static;padding:0}
+@media(max-width:900px){.orbit{right:-12%;top:auto;bottom:3%;padding:14px}}
 
 /* Keep the author video and copy within the same readable desktop canvas. */
 .author{display:block;min-height:850px}.author-inner{width:min(100%,1440px);min-height:850px;margin:0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.author-copy>.magnetic{align-self:flex-start;justify-content:center;gap:0;min-height:50px;padding:15px 26px}@media(max-width:600px){.author{min-height:0}.author-inner{min-height:0;grid-template-columns:1fr}}@media(min-width:601px) and (max-width:900px){.author-inner{min-height:670px;grid-template-columns:repeat(2,minmax(0,1fr))}}

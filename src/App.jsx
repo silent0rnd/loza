@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'motion/react';
-import { ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, CaretDown, Check, Play, Sparkle, X } from '@phosphor-icons/react';
+import { ArrowDownRight, ArrowLeft, ArrowRight, CaretDown, Check, Play, Sparkle, X } from '@phosphor-icons/react';
 import heroImageFallback from './assets/1bb4a3fc59c86dc4.jpg';
 import heroImageMobile from './assets/hero-basket-480.webp';
 import heroImageDesktop from './assets/hero-basket-800.webp';
@@ -284,7 +284,7 @@ export default function App() {
   return <main>
     <header className="nav"><a className="logo" href="#top">плету<br />лозу</a>
       <nav>{navItems.map(([label, href]) => <a key={href} href={href}><NoBreak>{label}</NoBreak></a>)}</nav>
-      <button className="nav-cta" onClick={() => document.querySelector('#register')?.scrollIntoView({ behavior: 'smooth' })}>Записаться <ArrowUpRight /></button>
+      <button className="nav-cta" onClick={() => document.querySelector('#register')?.scrollIntoView({ behavior: 'smooth' })}>Записаться</button>
       <button className="menu" type="button" ref={menuTriggerRef} onClick={() => setMenu(true)} aria-expanded={menu} aria-controls="mobile-menu"><span>меню</span></button>
     </header>
     {menu && <nav className="mobile-menu" id="mobile-menu" aria-label="Мобильная навигация">
