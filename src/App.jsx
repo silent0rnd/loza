@@ -350,6 +350,22 @@ function Gallery() {
     };
   }, []);
 
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return undefined;
+    const forwardVerticalWheel = event => {
+      if (event.ctrlKey) return;
+      event.preventDefault();
+      if (!event.deltaY) return;
+      const page = document.scrollingElement;
+      if (!page) return;
+      const factor = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? 16 : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? window.innerHeight : 1;
+      page.scrollTop += event.deltaY * factor;
+    };
+    track.addEventListener('wheel', forwardVerticalWheel, { passive: false });
+    return () => track.removeEventListener('wheel', forwardVerticalWheel);
+  }, []);
+
   const scrollGallery = direction => {
     const track = trackRef.current;
     const card = track?.querySelector('figure');
