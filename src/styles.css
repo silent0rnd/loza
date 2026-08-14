@@ -41,6 +41,9 @@
 .orbit{right:-5%;top:auto;bottom:3%;padding:22px;border:1px solid #ffffff4d;isolation:auto}.orbit-ring{display:none}.orbit span{position:static;padding:0}
 @media(max-width:900px){.orbit{right:-12%;top:auto;bottom:3%;padding:14px}}
 
+/* Keep vertical page scrolling available when a touch starts on the horizontal gallery. */
+.gallery-track{touch-action:pan-x pan-y}
+
 /* Keep the author video and copy within the same readable desktop canvas. */
 .author{display:block;min-height:850px}.author-inner{width:min(100%,1440px);min-height:850px;margin:0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.author-copy>.magnetic{align-self:flex-start;justify-content:center;gap:0;min-height:50px;padding:15px 26px}@media(min-width:601px){.author-media{width:100%;aspect-ratio:1;align-self:center;min-height:0}.author-media .deferred-video{height:100%}}@media(max-width:600px){.author{min-height:0}.author-inner{min-height:0;grid-template-columns:1fr}}@media(min-width:601px) and (max-width:900px){.author-inner{min-height:670px;grid-template-columns:repeat(2,minmax(0,1fr))}}
 

@@ -83,7 +83,7 @@
   z-index: -1;
   inset: -11px -12px -14px -10px;
   background: var(--deep);
-  clip-path: polygon(5% 0, 95% 2%, 100% 11%, 97% 93%, 89% 100%, 4% 97%, 0 88%, 2% 8%);
+  border-radius: 12% 10% 14% 9% / 7% 9% 6% 8%;
   transform: rotate(1.4deg);
   box-shadow: 0 22px 48px rgba(12, 43, 33, .24);
 }
@@ -94,7 +94,7 @@
   height: 100%;
   overflow: hidden;
   background: var(--deep);
-  clip-path: polygon(4% 1%, 96% 3%, 99% 12%, 97% 94%, 90% 99%, 3% 96%, 1% 87%, 2% 9%);
+  border-radius: 12% 10% 14% 9% / 7% 9% 6% 8%;
 }
 
 .author-video video,
