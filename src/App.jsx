@@ -4,19 +4,72 @@ import { ArrowDownRight, ArrowLeft, ArrowRight, CaretDown, Check, Pause, Play, S
 import heroImageFallback from './assets/1bb4a3fc59c86dc4.jpg';
 import heroImageMobile from './assets/hero-basket-480.webp';
 import heroImageDesktop from './assets/hero-basket-800.webp';
-import chairImage from './assets/5ef017e4626965f7.jpg';
-import galleryBasketImage from './assets/b9b7e62ff7d5633d.jpg';
-import galleryDetailImage from './assets/98ae41cb44393170.jpg';
-import galleryWorkImage from './assets/eb8c8a80c1529ce9.jpg';
+import chairImage480 from './assets/chair-480.webp';
+import chairImage800 from './assets/chair-800.webp';
+import chairImage1200 from './assets/chair-1200.webp';
+import galleryBasketImage480 from './assets/gallery-basket-480.webp';
+import galleryBasketImage800 from './assets/gallery-basket-800.webp';
+import galleryBasketImage1177 from './assets/gallery-basket-1177.webp';
+import galleryDetailImage480 from './assets/gallery-detail-480.webp';
+import galleryDetailImage800 from './assets/gallery-detail-800.webp';
+import galleryDetailImage1204 from './assets/gallery-detail-1204.webp';
+import galleryWorkImage480 from './assets/gallery-work-480.webp';
+import galleryWorkImage839 from './assets/gallery-work-839.webp';
 import giftVideo from './assets/91a42c543ffc7b3c.mp4';
 import giftPoster from './assets/gift-poster.jpg';
 import authorVideo from './assets/author-720.mp4';
 import authorPoster from './assets/author-poster.jpg';
 import nataliaReviewImage from './assets/review-natalia.webp';
+import nataliaReviewImage480 from './assets/review-natalia-480.webp';
+import nataliaReviewImage900 from './assets/review-natalia-900.webp';
 import veronikaReviewImage from './assets/review-veronika.webp';
+import veronikaReviewImage480 from './assets/review-veronika-480.webp';
+import veronikaReviewImage900 from './assets/review-veronika-900.webp';
 import benefitsPaperVineBoxImage from './assets/benefits-paper-vine-box.webp';
+import benefitsPaperVineBoxImage640 from './assets/benefits-paper-vine-box-640.webp';
+import benefitsPaperVineBoxImage1024 from './assets/benefits-paper-vine-box-1024.webp';
 
-const gallery = [heroImageDesktop, chairImage, galleryBasketImage, galleryDetailImage, galleryWorkImage];
+const chairMedia = {
+  src: chairImage1200,
+  srcSet: `${chairImage480} 480w, ${chairImage800} 800w, ${chairImage1200} 1200w`,
+  width: 1200,
+  height: 1600,
+};
+const benefitsMedia = {
+  src: benefitsPaperVineBoxImage,
+  srcSet: `${benefitsPaperVineBoxImage640} 640w, ${benefitsPaperVineBoxImage1024} 1024w, ${benefitsPaperVineBoxImage} 1536w`,
+  width: 1536,
+  height: 1024,
+};
+const nataliaReviewMedia = {
+  src: nataliaReviewImage,
+  srcSet: `${nataliaReviewImage480} 480w, ${nataliaReviewImage900} 900w, ${nataliaReviewImage} 1448w`,
+  sizes: '(max-width: 900px) 100vw, 50vw',
+  width: 1448,
+  height: 1086,
+};
+const veronikaReviewMedia = {
+  src: veronikaReviewImage,
+  srcSet: `${veronikaReviewImage480} 480w, ${veronikaReviewImage900} 900w, ${veronikaReviewImage} 1448w`,
+  sizes: '(max-width: 900px) 100vw, 50vw',
+  width: 1448,
+  height: 1086,
+};
+const gallery = [
+  { src: heroImageDesktop, srcSet: `${heroImageMobile} 480w, ${heroImageDesktop} 800w`, width: 800, height: 1066 },
+  chairMedia,
+  { src: galleryBasketImage1177, srcSet: `${galleryBasketImage480} 480w, ${galleryBasketImage800} 800w, ${galleryBasketImage1177} 1177w`, width: 1177, height: 1600 },
+  { src: galleryDetailImage1204, srcSet: `${galleryDetailImage480} 480w, ${galleryDetailImage800} 800w, ${galleryDetailImage1204} 1204w`, width: 1204, height: 1600 },
+  { src: galleryWorkImage839, srcSet: `${galleryWorkImage480} 480w, ${galleryWorkImage839} 839w`, width: 839, height: 1280 },
+];
+const videoPreloadRequests = new Map();
+
+function preloadVideo(src) {
+  if (!videoPreloadRequests.has(src)) {
+    const request = fetch(src, { cache: 'force-cache', priority: 'low' }).catch(() => null);
+    videoPreloadRequests.set(src, request);
+  }
+}
 const benefits = [
   ['Готовое изделие', 'Сплетёте первую работу вместе с Полиной прямо на эфире.'],
   ['Два полезных подарка', 'Инструкции и уроки останутся у вас после мастер-класса.'],
@@ -55,33 +108,8 @@ function useScrollLock(locked) {
   }, [locked]);
 }
 
-function useDeferredSource(rootMargin = '240px 0px') {
-  const ref = useRef(null);
-  const [shouldLoad, setShouldLoad] = useState(false);
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return undefined;
-    if (!('IntersectionObserver' in window)) {
-      setShouldLoad(true);
-      return undefined;
-    }
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setShouldLoad(true);
-        observer.disconnect();
-      }
-    }, { rootMargin });
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [rootMargin]);
-
-  return [ref, shouldLoad];
-}
-
-function DeferredImage({ src, alt, className = '', ...props }) {
-  const [ref, shouldLoad] = useDeferredSource();
-  return <img ref={ref} className={className} src={shouldLoad ? src : undefined} alt={alt} loading="lazy" decoding="async" {...props} />;
+function MediaImage({ src, srcSet, sizes, alt, className = '', width, height, ...props }) {
+  return <img className={className} src={src} srcSet={srcSet} sizes={sizes} alt={alt} width={width} height={height} loading="eager" fetchPriority="low" decoding="async" {...props} />;
 }
 
 function MagneticButton({ children, light = false, showArrow = true, ...props }) {
@@ -126,7 +154,7 @@ function Reveal({ children, className = '' }) {
   return <motion.div className={className} initial={reduce ? false : { opacity: 0, y: 38 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .18 }} transition={{ duration: .75, ease: [.16, 1, .3, 1] }}>{children}</motion.div>;
 }
 
-function BenefitsMedia({ src, alt }) {
+function BenefitsMedia({ media, alt }) {
   const reduce = useReducedMotion();
   const containerRef = useRef(null);
   const bounds = useRef(null);
@@ -186,27 +214,55 @@ function BenefitsMedia({ src, alt }) {
   }} onMouseLeave={resetPointer}>
     <motion.div className="benefits-media-parallax" style={reduce ? undefined : { y: parallaxY }}>
       <motion.div className="benefits-media-hover" style={reduce ? undefined : { x, y, scale }}>
-        <DeferredImage src={src} alt={alt} />
+        <MediaImage {...media} sizes="(max-width: 600px) 100vw, (max-width: 900px) 90vw, 50vw" alt={alt} />
       </motion.div>
     </motion.div>
   </div>;
 }
 
-function DeferredVideo({ src, poster, className = '', ...props }) {
+function useVideoPlayback(reduce, src, rootMargin = '600px 0px') {
+  const containerRef = useRef(null);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const video = videoRef.current;
+    if (!container || !video) return undefined;
+    preloadVideo(src);
+    video.load();
+    if (reduce) {
+      video.pause();
+      return undefined;
+    }
+    if (!('IntersectionObserver' in window)) {
+      video.play().catch(() => {});
+      return undefined;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) video.play().catch(() => {});
+      else video.pause();
+    }, { rootMargin });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [reduce, rootMargin, src]);
+
+  return [containerRef, videoRef];
+}
+
+function PreloadedVideo({ src, poster, posterWidth, posterHeight, className = '', ...props }) {
   const reduce = useReducedMotion();
-  const [containerRef, shouldLoad] = useDeferredSource();
+  const [containerRef, videoRef] = useVideoPlayback(reduce, src);
   return <div className={`deferred-video ${className}`} ref={containerRef}>
-    {shouldLoad && <img src={poster} alt="" aria-hidden="true" decoding="async" />}
-    {shouldLoad && !reduce && <video {...props} muted loop playsInline preload="metadata" onCanPlay={event => event.currentTarget.play().catch(() => {})}>
+    <img src={poster} alt="" width={posterWidth} height={posterHeight} aria-hidden="true" loading="eager" fetchPriority="low" decoding="async" />
+    <video ref={videoRef} {...props} muted loop playsInline preload="auto" poster={poster} width={posterWidth} height={posterHeight}>
       <source src={src} type="video/mp4" />
-    </video>}
+    </video>
   </div>;
 }
 
 function AuthorVideo({ src, poster }) {
   const reduce = useReducedMotion();
-  const videoRef = useRef(null);
-  const [containerRef, shouldLoad] = useDeferredSource();
+  const [containerRef, videoRef] = useVideoPlayback(reduce, src);
   const [hasStarted, setHasStarted] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -226,24 +282,34 @@ function AuthorVideo({ src, poster }) {
     }
   };
 
+  const markStarted = event => {
+    const video = event.currentTarget;
+    setPlaying(true);
+    if ('requestVideoFrameCallback' in video) {
+      video.requestVideoFrameCallback(() => setHasStarted(true));
+    } else {
+      setHasStarted(true);
+    }
+  };
+
   return <div className="author-video" ref={containerRef}>
-    {shouldLoad && <>
       <video
         ref={videoRef}
-        autoPlay={!reduce}
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
         poster={poster}
+        width="406"
+        height="720"
         aria-label="Полина Майорова показывает технику плетения"
-        onPlaying={() => { setHasStarted(true); setPlaying(true); }}
+        onPlaying={markStarted}
         onPause={() => setPlaying(false)}
         onError={() => { setLoadFailed(true); setPlaying(false); }}
       >
         <source src={src} type="video/mp4" />
       </video>
-      <img className={`author-video-poster ${hasStarted ? 'is-hidden' : ''}`} src={poster} alt="" aria-hidden="true" decoding="async" />
+      <img className={`author-video-poster ${hasStarted ? 'is-hidden' : ''}`} src={poster} alt="" width="406" height="720" aria-hidden="true" loading="eager" fetchPriority="low" decoding="async" />
       <button
         className={`author-video-control ${playing ? 'is-playing' : ''}`}
         type="button"
@@ -254,7 +320,6 @@ function AuthorVideo({ src, poster }) {
       >
         {playing ? <Pause weight="fill" /> : <Play weight="fill" />}
       </button>
-    </>}
   </div>;
 }
 
@@ -327,7 +392,7 @@ function Gallery() {
         event.preventDefault();
         event.stopPropagation();
       }
-    }}>{gallery.map((image, index) => <motion.figure key={image} whileHover={{ scale: 1.035, rotate: index % 2 ? 1.5 : -1.5 }}><DeferredImage src={image} alt="Работа ученицы школы плетения" /></motion.figure>)}</div>
+    }}>{gallery.map((image, index) => <motion.figure key={image.src} whileHover={{ scale: 1.035, rotate: index % 2 ? 1.5 : -1.5 }}><MediaImage {...image} sizes="(max-width: 600px) 72vw, 380px" alt="Работа ученицы школы плетения" /></motion.figure>)}</div>
   </section>;
 }
 
@@ -413,21 +478,21 @@ export default function App() {
       <div className="mobile-menu-head"><a className="logo" href="#top" onClick={closeMenu}>плету<br />лозу</a><button className="mobile-menu-close" type="button" ref={menuCloseRef} onClick={closeMenu} aria-label="Закрыть меню"><X /></button></div>
       {navItems.map(([label, href]) => <a key={href} href={href} onClick={event => navigateFromMenu(event, href)}><NoBreak>{label}</NoBreak></a>)}
     </nav>}
-    <section className="hero" id="top"><div className="hero-inner"><div className="hero-copy"><motion.span className="kicker" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><NoBreak>Бесплатный мастер-класс</NoBreak></motion.span><motion.h1 initial={{ opacity: 0, y: 35 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .8 }}>Плетите <em>красоту</em></motion.h1><motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .15 }}><NoBreak>Создайте декор как из Pinterest своими руками всего за 2 часа. Подходит даже новичкам.</NoBreak></motion.p><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .3 }}><MagneticButton showArrow={false} onClick={() => document.querySelector('#register')?.scrollIntoView({ behavior: 'smooth' })}>Выбрать время</MagneticButton></motion.div></div><div className="hero-media"><motion.div className="sun" animate={{ rotate: 360 }} transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}><Sparkle weight="fill" /></motion.div><Tilt className="hero-photo"><picture><source media="(max-width: 600px)" srcSet={heroImageMobile} type="image/webp" /><source srcSet={heroImageDesktop} type="image/webp" /><img src={heroImageFallback} alt="Плетёная корзина ручной работы" fetchPriority="high" decoding="async" /></picture><div className="price"><small>участие</small><b>0 <i>руб.</i></b><s>1990 руб.</s></div></Tilt><motion.div className="orbit" aria-hidden="true" animate={reduceMotion ? {} : { rotate: -360 }} transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}><div className="orbit-ring" /><span>БУМАЖНАЯ ЛОЗА •<br />СВОИМИ РУКАМИ •</span></motion.div></div></div></section>
+    <section className="hero" id="top"><div className="hero-inner"><div className="hero-copy"><motion.span className="kicker" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><NoBreak>Бесплатный мастер-класс</NoBreak></motion.span><motion.h1 initial={{ opacity: 0, y: 35 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .8 }}>Плетите <em>красоту</em></motion.h1><motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .15 }}><NoBreak>Создайте декор как из Pinterest своими руками всего за 2 часа. Подходит даже новичкам.</NoBreak></motion.p><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .3 }}><MagneticButton showArrow={false} onClick={() => document.querySelector('#register')?.scrollIntoView({ behavior: 'smooth' })}>Выбрать время</MagneticButton></motion.div></div><div className="hero-media"><motion.div className="sun" animate={{ rotate: 360 }} transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}><Sparkle weight="fill" /></motion.div><Tilt className="hero-photo"><picture><source media="(max-width: 600px)" srcSet={heroImageMobile} type="image/webp" /><source srcSet={heroImageDesktop} type="image/webp" /><img src={heroImageFallback} alt="Плетёная корзина ручной работы" width="800" height="1066" loading="eager" fetchPriority="high" decoding="async" /></picture><div className="price"><small>участие</small><b>0 <i>руб.</i></b><s>1990 руб.</s></div></Tilt><motion.div className="orbit" aria-hidden="true" animate={reduceMotion ? {} : { rotate: -360 }} transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}><div className="orbit-ring" /><span>БУМАЖНАЯ ЛОЗА •<br />СВОИМИ РУКАМИ •</span></motion.div></div></div></section>
     <section className="date-band" id="register"><div><span>Ближайший эфир</span><strong><span>11</span><span>августа</span><span>2026</span></strong></div><Signup compact /></section>
-    <section className="gifts" id="program"><Reveal className="section-head"><span className="kicker">Подарки за регистрацию</span><h2>Начните плести<br />ещё до эфира</h2><p><NoBreak>Сразу после регистрации откроем материалы, которые помогут подготовиться и почувствовать технику руками.</NoBreak></p></Reveal><div className="gift-grid"><Tilt className="gift gift-one"><DeferredVideo className="gift-video" src={giftVideo} poster={giftPoster} /><span>Видео-урок</span><h3>Плетёная корзина и макраме</h3><Play weight="fill" aria-hidden="true" /></Tilt><Tilt className="gift gift-two"><span>Практическая инструкция</span><h3>Изготовление и обработка бумажной лозы</h3><DeferredImage src={chairImage} alt="Кресло из бумажной лозы" /><Check weight="bold" /></Tilt></div></section>
+    <section className="gifts" id="program"><Reveal className="section-head"><span className="kicker">Подарки за регистрацию</span><h2>Начните плести<br />ещё до эфира</h2><p><NoBreak>Сразу после регистрации откроем материалы, которые помогут подготовиться и почувствовать технику руками.</NoBreak></p></Reveal><div className="gift-grid"><Tilt className="gift gift-one"><PreloadedVideo className="gift-video" src={giftVideo} poster={giftPoster} posterWidth={394} posterHeight={720} /><span>Видео-урок</span><h3>Плетёная корзина и макраме</h3><Play weight="fill" aria-hidden="true" /></Tilt><Tilt className="gift gift-two"><span>Практическая инструкция</span><h3>Изготовление и обработка бумажной лозы</h3><MediaImage {...chairMedia} sizes="(max-width: 900px) 64vw, 32vw" alt="Кресло из бумажной лозы" /><Check weight="bold" /></Tilt></div></section>
     <section className="benefits">
       <div className="benefits-intro">
         <Reveal className="benefits-copy"><span className="kicker">Что вы получите</span><h2><NoBreak>Результат, который можно потрогать</NoBreak></h2></Reveal>
-        <Reveal className="benefits-media-reveal"><BenefitsMedia src={benefitsPaperVineBoxImage} alt="Плетёная шкатулка из бумажной лозы ручной работы" /></Reveal>
+        <Reveal className="benefits-media-reveal"><BenefitsMedia media={benefitsMedia} alt="Плетёная шкатулка из бумажной лозы ручной работы" /></Reveal>
       </div>
       <div className="benefit-list">{benefits.map((benefit, index) => <article key={benefit[0]}><span>0{index + 1}</span><h3><NoBreak>{benefit[0]}</NoBreak></h3><p><NoBreak>{benefit[1]}</NoBreak></p></article>)}</div>
     </section>
     <Gallery />
     <section className="author" id="author"><div className="author-inner"><Reveal className="author-copy"><span className="kicker">Полина Майорова</span><h2><NoBreak>Научу видеть материал и не бояться первой петли</NoBreak></h2><div className="author-media"><AuthorVideo src={authorVideo} poster={authorPoster} /></div><p><NoBreak>Автор школы «Плету лозу». Полина объясняет технику спокойно, точно и с уважением к вашему темпу.</NoBreak></p><div className="facts"><div><b>с нуля до первой работы</b></div><div><b>Две живые практики</b></div></div><MagneticButton light showArrow={false}>Познакомиться</MagneticButton></Reveal></div></section>
-    <section className="reviews" id="reviews"><Reveal><span className="kicker">Отзывы учениц</span><h2>«Теперь я могу плести сама»</h2></Reveal><div className="review-grid"><article className="review-card"><DeferredImage className="review-portrait" src={nataliaReviewImage} alt="Иллюстративный портрет Наталии" /><div className="review-copy"><p><NoBreak>«Впервые встречаю такой ответственный подход и настолько качественное обучение. Настоящая школа плетения.»</NoBreak></p><span>Наталия</span></div></article><article className="review-card"><DeferredImage className="review-portrait" src={veronikaReviewImage} alt="Иллюстративный портрет Вероники" /><div className="review-copy"><p><NoBreak>«Корзинами я бредила лет пятнадцать. Теперь дарю свои работы близким и не верю, что сделала их сама.»</NoBreak></p><span>Вероника</span></div></article></div></section>
+    <section className="reviews" id="reviews"><Reveal><span className="kicker">Отзывы учениц</span><h2>«Теперь я могу плести сама»</h2></Reveal><div className="review-grid"><article className="review-card"><MediaImage {...nataliaReviewMedia} className="review-portrait" alt="Иллюстративный портрет Наталии" /><div className="review-copy"><p><NoBreak>«Впервые встречаю такой ответственный подход и настолько качественное обучение. Настоящая школа плетения.»</NoBreak></p><span>Наталия</span></div></article><article className="review-card"><MediaImage {...veronikaReviewMedia} className="review-portrait" alt="Иллюстративный портрет Вероники" /><div className="review-copy"><p><NoBreak>«Корзинами я бредила лет пятнадцать. Теперь дарю свои работы близким и не верю, что сделала их сама.»</NoBreak></p><span>Вероника</span></div></article></div></section>
     <section className="faq"><Reveal><span className="kicker">Вопросы</span><h2><NoBreak>Всё просто. Даже если вы начинаете с нуля</NoBreak></h2></Reveal><div className="accordion">{faq.map(([question, answer]) => <details key={question}><summary><NoBreak>{question}</NoBreak><CaretDown /></summary><p><NoBreak>{answer}</NoBreak></p></details>)}</div></section>
-    <section className="final"><div className="final-bg"><DeferredImage src={chairImage} alt="Интерьер с плетёным креслом" /></div><Reveal className="final-copy"><span className="kicker">Давайте творить вместе</span><h2><NoBreak>Ваши руки уже умеют больше, чем вы думаете</NoBreak></h2><p><NoBreak>Выберите удобное время и приходите на бесплатный мастер-класс 11 августа.</NoBreak></p><Signup /></Reveal></section>
+    <section className="final"><div className="final-bg"><MediaImage {...chairMedia} sizes="100vw" alt="Интерьер с плетёным креслом" /></div><Reveal className="final-copy"><span className="kicker">Давайте творить вместе</span><h2><NoBreak>Ваши руки уже умеют больше, чем вы думаете</NoBreak></h2><p><NoBreak>Выберите удобное время и приходите на бесплатный мастер-класс 11 августа.</NoBreak></p><Signup /></Reveal></section>
     <footer><a className="logo" href="#top">плету<br />лозу</a><p>ИП Майорова Полина Вадимовна<br />ИНН 771472141040</p><div><a href="https://online.pletulozu.ru/dogovor_oferta">Договор оферты</a><a href="https://online.pletulozu.ru/politika">Политика данных</a></div><div className="site-author">Сайт разработан <a href="https://naklikay.ru/" target="_blank" rel="noopener">Максимом Мирошниковым</a></div><span>© 2026</span></footer>
   </main>;
 }
