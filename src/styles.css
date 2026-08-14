@@ -25,6 +25,11 @@
 .benefit-list article{grid-template-columns:clamp(45px,5.5vw,70px) minmax(0,1fr)}
 .benefit-list article>span{grid-row:span 2}
 .benefit-list p{grid-column:2;max-width:none;margin:clamp(8px,1vw,10px) 0 0}
+.benefits>div.benefits-intro{display:grid;grid-template-columns:minmax(0,1fr);align-items:center;gap:clamp(2.5rem,6vw,5rem);max-width:none;margin-bottom:clamp(3.5rem,6vw,5.5rem)}
+.benefits-copy{max-width:62.5rem}
+.benefits-media{width:100%;aspect-ratio:3/2;overflow:hidden;background:var(--sand);clip-path:polygon(2% 55%,7% 35%,16% 17%,31% 8%,47% 7%,63% 3%,79% 6%,94% 16%,99% 31%,98% 54%,94% 75%,86% 96%,63% 94%,39% 98%,19% 90%,7% 73%)}
+.benefits-media img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 55%}
+@media(min-width:901px){.benefits>div.benefits-intro{grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:clamp(2.5rem,5vw,6rem)}.benefits-media{aspect-ratio:1.22}}
 
 /* Original hero text ring: the full circle, including its inscription, rotates together. */
 .orbit{right:-5%;top:auto;bottom:3%;padding:22px;border:1px solid #ffffff4d;isolation:auto}.orbit-ring{display:none}.orbit span{position:static;padding:0}

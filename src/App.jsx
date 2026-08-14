@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'motion/react';
-import { ArrowDownRight, ArrowLeft, ArrowRight, CaretDown, Check, Play, Sparkle, X } from '@phosphor-icons/react';
+import { ArrowDownRight, ArrowLeft, ArrowRight, CaretDown, Check, Pause, Play, Sparkle, X } from '@phosphor-icons/react';
 import heroImageFallback from './assets/1bb4a3fc59c86dc4.jpg';
 import heroImageMobile from './assets/hero-basket-480.webp';
 import heroImageDesktop from './assets/hero-basket-800.webp';
@@ -14,6 +14,7 @@ import authorVideo from './assets/author-720.mp4';
 import authorPoster from './assets/author-poster.jpg';
 import nataliaReviewImage from './assets/review-natalia.webp';
 import veronikaReviewImage from './assets/review-veronika.webp';
+import benefitsPaperVineBoxImage from './assets/benefits-paper-vine-box.webp';
 
 const gallery = [heroImageDesktop, chairImage, galleryBasketImage, galleryDetailImage, galleryWorkImage];
 const benefits = [
@@ -133,6 +134,61 @@ function DeferredVideo({ src, poster, className = '', ...props }) {
     {shouldLoad && !reduce && <video {...props} muted loop playsInline preload="metadata" onCanPlay={event => event.currentTarget.play().catch(() => {})}>
       <source src={src} type="video/mp4" />
     </video>}
+  </div>;
+}
+
+function AuthorVideo({ src, poster }) {
+  const reduce = useReducedMotion();
+  const videoRef = useRef(null);
+  const [containerRef, shouldLoad] = useDeferredSource();
+  const [hasStarted, setHasStarted] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+
+  const togglePlayback = async () => {
+    const video = videoRef.current;
+    if (!video || loadFailed) return;
+
+    if (video.paused) {
+      try {
+        await video.play();
+      } catch {
+        setPlaying(false);
+      }
+    } else {
+      video.pause();
+    }
+  };
+
+  return <div className="author-video" ref={containerRef}>
+    {shouldLoad && <>
+      <video
+        ref={videoRef}
+        autoPlay={!reduce}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        poster={poster}
+        aria-label="Полина Майорова показывает технику плетения"
+        onPlaying={() => { setHasStarted(true); setPlaying(true); }}
+        onPause={() => setPlaying(false)}
+        onError={() => { setLoadFailed(true); setPlaying(false); }}
+      >
+        <source src={src} type="video/mp4" />
+      </video>
+      <img className={`author-video-poster ${hasStarted ? 'is-hidden' : ''}`} src={poster} alt="" aria-hidden="true" decoding="async" />
+      <button
+        className={`author-video-control ${playing ? 'is-playing' : ''}`}
+        type="button"
+        onClick={togglePlayback}
+        disabled={loadFailed}
+        data-initial={!hasStarted}
+        aria-label={loadFailed ? 'Видео недоступно' : playing ? 'Поставить видео на паузу' : 'Воспроизвести видео'}
+      >
+        {playing ? <Pause weight="fill" /> : <Play weight="fill" />}
+      </button>
+    </>}
   </div>;
 }
 
@@ -294,9 +350,15 @@ export default function App() {
     <section className="hero" id="top"><div className="hero-inner"><div className="hero-copy"><motion.span className="kicker" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><NoBreak>Бесплатный мастер-класс</NoBreak></motion.span><motion.h1 initial={{ opacity: 0, y: 35 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .8 }}>Плетите <em>красоту</em></motion.h1><motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .15 }}><NoBreak>Создайте декор как из Pinterest своими руками всего за 2 часа. Подходит даже новичкам.</NoBreak></motion.p><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .3 }}><MagneticButton showArrow={false} onClick={() => document.querySelector('#register')?.scrollIntoView({ behavior: 'smooth' })}>Выбрать время</MagneticButton></motion.div></div><div className="hero-media"><motion.div className="sun" animate={{ rotate: 360 }} transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}><Sparkle weight="fill" /></motion.div><Tilt className="hero-photo"><picture><source media="(max-width: 600px)" srcSet={heroImageMobile} type="image/webp" /><source srcSet={heroImageDesktop} type="image/webp" /><img src={heroImageFallback} alt="Плетёная корзина ручной работы" fetchPriority="high" decoding="async" /></picture><div className="price"><small>участие</small><b>0 <i>руб.</i></b><s>1990 руб.</s></div></Tilt><motion.div className="orbit" aria-hidden="true" animate={reduceMotion ? {} : { rotate: -360 }} transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}><div className="orbit-ring" /><span>БУМАЖНАЯ ЛОЗА •<br />СВОИМИ РУКАМИ •</span></motion.div></div></div></section>
     <section className="date-band" id="register"><div><span>Ближайший эфир</span><strong><span>11</span><span>августа</span><span>2026</span></strong></div><Signup compact /></section>
     <section className="gifts" id="program"><Reveal className="section-head"><span className="kicker">Подарки за регистрацию</span><h2>Начните плести<br />ещё до эфира</h2><p><NoBreak>Сразу после регистрации откроем материалы, которые помогут подготовиться и почувствовать технику руками.</NoBreak></p></Reveal><div className="gift-grid"><Tilt className="gift gift-one"><DeferredVideo className="gift-video" src={giftVideo} poster={giftPoster} /><span>Видео-урок</span><h3>Плетёная корзина и макраме</h3><Play weight="fill" aria-hidden="true" /></Tilt><Tilt className="gift gift-two"><span>Практическая инструкция</span><h3>Изготовление и обработка бумажной лозы</h3><DeferredImage src={chairImage} alt="Кресло из бумажной лозы" /><Check weight="bold" /></Tilt></div></section>
-    <section className="benefits"><Reveal><span className="kicker">Что вы получите</span><h2><NoBreak>Результат, который можно потрогать</NoBreak></h2></Reveal><div className="benefit-list">{benefits.map((benefit, index) => <article key={benefit[0]}><span>0{index + 1}</span><h3><NoBreak>{benefit[0]}</NoBreak></h3><p><NoBreak>{benefit[1]}</NoBreak></p></article>)}</div></section>
+    <section className="benefits">
+      <div className="benefits-intro">
+        <Reveal className="benefits-copy"><span className="kicker">Что вы получите</span><h2><NoBreak>Результат, который можно потрогать</NoBreak></h2></Reveal>
+        <Reveal className="benefits-media"><DeferredImage src={benefitsPaperVineBoxImage} alt="Плетёная шкатулка из бумажной лозы ручной работы" /></Reveal>
+      </div>
+      <div className="benefit-list">{benefits.map((benefit, index) => <article key={benefit[0]}><span>0{index + 1}</span><h3><NoBreak>{benefit[0]}</NoBreak></h3><p><NoBreak>{benefit[1]}</NoBreak></p></article>)}</div>
+    </section>
     <Gallery />
-    <section className="author" id="author"><div className="author-inner"><div className="author-media"><DeferredVideo src={authorVideo} poster={authorPoster} /></div><Reveal className="author-copy"><span className="kicker">Полина Майорова</span><h2><NoBreak>Научу видеть материал и не бояться первой петли</NoBreak></h2><p><NoBreak>Автор школы «Плету лозу». Полина объясняет технику спокойно, точно и с уважением к вашему темпу.</NoBreak></p><div className="facts"><div><b>с 0 до первой работы</b></div><div><b>Две живые практики</b></div></div><MagneticButton light showArrow={false}>Познакомиться</MagneticButton></Reveal></div></section>
+    <section className="author" id="author"><div className="author-inner"><Reveal className="author-copy"><span className="kicker">Полина Майорова</span><h2><NoBreak>Научу видеть материал и не бояться первой петли</NoBreak></h2><div className="author-media"><AuthorVideo src={authorVideo} poster={authorPoster} /></div><p><NoBreak>Автор школы «Плету лозу». Полина объясняет технику спокойно, точно и с уважением к вашему темпу.</NoBreak></p><div className="facts"><div><b>с нуля до первой работы</b></div><div><b>Две живые практики</b></div></div><MagneticButton light showArrow={false}>Познакомиться</MagneticButton></Reveal></div></section>
     <section className="reviews" id="reviews"><Reveal><span className="kicker">Отзывы учениц</span><h2>«Теперь я могу плести сама»</h2></Reveal><div className="review-grid"><article className="review-card"><DeferredImage className="review-portrait" src={nataliaReviewImage} alt="Иллюстративный портрет Наталии" /><div className="review-copy"><p><NoBreak>«Впервые встречаю такой ответственный подход и настолько качественное обучение. Настоящая школа плетения.»</NoBreak></p><span>Наталия</span></div></article><article className="review-card"><DeferredImage className="review-portrait" src={veronikaReviewImage} alt="Иллюстративный портрет Вероники" /><div className="review-copy"><p><NoBreak>«Корзинами я бредила лет пятнадцать. Теперь дарю свои работы близким и не верю, что сделала их сама.»</NoBreak></p><span>Вероника</span></div></article></div></section>
     <section className="faq"><Reveal><span className="kicker">Вопросы</span><h2><NoBreak>Всё просто. Даже если вы начинаете с нуля</NoBreak></h2></Reveal><div className="accordion">{faq.map(([question, answer]) => <details key={question}><summary><NoBreak>{question}</NoBreak><CaretDown /></summary><p><NoBreak>{answer}</NoBreak></p></details>)}</div></section>
     <section className="final"><div className="final-bg"><DeferredImage src={chairImage} alt="Интерьер с плетёным креслом" /></div><Reveal className="final-copy"><span className="kicker">Давайте творить вместе</span><h2><NoBreak>Ваши руки уже умеют больше, чем вы думаете</NoBreak></h2><p><NoBreak>Выберите удобное время и приходите на бесплатный мастер-класс 11 августа.</NoBreak></p><Signup /></Reveal></section>
