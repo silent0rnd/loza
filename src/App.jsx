@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'motion/react';
+import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'motion/react';
 import { ArrowDownRight, ArrowLeft, ArrowRight, CaretDown, Check, Pause, Play, Sparkle, X } from '@phosphor-icons/react';
 import heroImageFallback from './assets/1bb4a3fc59c86dc4.jpg';
 import heroImageMobile from './assets/hero-basket-480.webp';
@@ -124,6 +124,72 @@ function Tilt({ children, className = '' }) {
 function Reveal({ children, className = '' }) {
   const reduce = useReducedMotion();
   return <motion.div className={className} initial={reduce ? false : { opacity: 0, y: 38 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .18 }} transition={{ duration: .75, ease: [.16, 1, .3, 1] }}>{children}</motion.div>;
+}
+
+function BenefitsMedia({ src, alt }) {
+  const reduce = useReducedMotion();
+  const containerRef = useRef(null);
+  const bounds = useRef(null);
+  const pointerActive = useRef(false);
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const hoverScale = useMotionValue(1);
+  const x = useSpring(pointerX, { stiffness: 150, damping: 24, mass: .7 });
+  const y = useSpring(pointerY, { stiffness: 150, damping: 24, mass: .7 });
+  const scale = useSpring(hoverScale, { stiffness: 170, damping: 24, mass: .7 });
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start end', 'end start'] });
+  const parallaxTarget = useTransform(scrollYProgress, [0, 1], [-20, 20]);
+  const parallaxY = useSpring(parallaxTarget, { stiffness: 90, damping: 24, mass: .35 });
+  const setPointerPosition = event => {
+    pointerActive.current = true;
+    if (!bounds.current) bounds.current = event.currentTarget.getBoundingClientRect();
+    const relativeX = Math.min(1, Math.max(0, (event.clientX - bounds.current.left) / bounds.current.width));
+    const relativeY = Math.min(1, Math.max(0, (event.clientY - bounds.current.top) / bounds.current.height));
+    pointerX.set((relativeX - .5) * 24);
+    pointerY.set((relativeY - .5) * 16);
+  };
+  const resetPointer = () => {
+    if (!pointerActive.current) return;
+    pointerActive.current = false;
+    bounds.current = null;
+    pointerX.set(0);
+    pointerY.set(0);
+    hoverScale.set(1);
+  };
+  useEffect(() => {
+    if (reduce) {
+      resetPointer();
+      return undefined;
+    }
+    const resetWhenOutside = event => {
+      if (!pointerActive.current) return;
+      const element = containerRef.current;
+      if (!element) return;
+      const rect = element.getBoundingClientRect();
+      const inside = event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+      if (!inside) resetPointer();
+    };
+    window.addEventListener('mousemove', resetWhenOutside);
+    return () => window.removeEventListener('mousemove', resetWhenOutside);
+  }, [reduce, pointerX, pointerY, hoverScale]);
+  return <div ref={containerRef} className="benefits-media" onMouseEnter={event => {
+    if (reduce) return;
+    bounds.current = event.currentTarget.getBoundingClientRect();
+    hoverScale.set(1.04);
+    setPointerPosition(event);
+  }} onMouseMove={event => {
+    if (reduce) return;
+    hoverScale.set(1.04);
+    setPointerPosition(event);
+  }} onMouseOut={event => {
+    if (!event.currentTarget.contains(event.relatedTarget)) resetPointer();
+  }} onMouseLeave={resetPointer}>
+    <motion.div className="benefits-media-parallax" style={reduce ? undefined : { y: parallaxY }}>
+      <motion.div className="benefits-media-hover" style={reduce ? undefined : { x, y, scale }}>
+        <DeferredImage src={src} alt={alt} />
+      </motion.div>
+    </motion.div>
+  </div>;
 }
 
 function DeferredVideo({ src, poster, className = '', ...props }) {
@@ -353,7 +419,7 @@ export default function App() {
     <section className="benefits">
       <div className="benefits-intro">
         <Reveal className="benefits-copy"><span className="kicker">Что вы получите</span><h2><NoBreak>Результат, который можно потрогать</NoBreak></h2></Reveal>
-        <Reveal className="benefits-media"><DeferredImage src={benefitsPaperVineBoxImage} alt="Плетёная шкатулка из бумажной лозы ручной работы" /></Reveal>
+        <Reveal className="benefits-media-reveal"><BenefitsMedia src={benefitsPaperVineBoxImage} alt="Плетёная шкатулка из бумажной лозы ручной работы" /></Reveal>
       </div>
       <div className="benefit-list">{benefits.map((benefit, index) => <article key={benefit[0]}><span>0{index + 1}</span><h3><NoBreak>{benefit[0]}</NoBreak></h3><p><NoBreak>{benefit[1]}</NoBreak></p></article>)}</div>
     </section>
